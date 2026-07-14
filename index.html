@@ -12,14 +12,28 @@
 </head>
 <body>
 
-    <!-- Memanggil Link Web App Baru Anda Secara Penuh -->
     <iframe src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbw5bf1vU6KR_nKxXD9V0gGgfdWCoqbzRtE-zezwR0fHMqhWvBFw6_0zS8KTqKIOrnHqzQ/exec"></iframe>
 
     <script>
-        // Mendaftarkan Service Worker formalitas agar syarat install PWA Android terpenuhi
+        // 1. Mendaftarkan Service Worker wajib PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
+
+        // 2. Kode Otomatis Memicu Pop-Up Install Resmi Android/Chrome
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Mencegah Chrome menunda banner
+            e.preventDefault();
+            
+            // Langsung eksekusi memunculkan pop-up install bawaan saat itu juga
+            e.prompt(); 
+            
+            e.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User menginstall MF GP');
+                }
+            });
+        });
     </script>
 </body>
 </html>
