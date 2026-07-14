@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MF GP</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #ffffff; }
+        iframe { border: none; width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+
+    <!-- Memanggil Link Web App Baru Anda Secara Penuh -->
+    <iframe src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbw5bf1vU6KR_nKxXD9V0gGgfdWCoqbzRtE-zezwR0fHMqhWvBFw6_0zS8KTqKIOrnHqzQ/exec"></iframe>
+
+    <script>
+        // Mendaftarkan Service Worker formalitas agar syarat install PWA Android terpenuhi
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
