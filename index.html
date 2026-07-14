@@ -8,31 +8,86 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; background-color: #ffffff; }
         iframe { border: none; width: 100%; height: 100%; }
+        
+        /* Tombol PWA Cadangan di Layar Utama */
+        #pwaInstallContainer {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            border: 2px solid #4A90E2;
+            padding: 10px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: none; /* Sembunyikan secara bawaan */
+            z-index: 99999;
+            align-items: center;
+            gap: 15px;
+            font-family: sans-serif;
+            width: 85%;
+            max-width: 400px;
+            justify-content: space-between;
+        }
+        .pwa-text-box h4 { margin: 0; font-size: 14px; color: #333; }
+        .pwa-text-box p { margin: 2px 0 0 0; font-size: 11px; color: #666; }
+        #btnPwaAction {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Pop-up Tombol Buatan Sendiri untuk Memicu Jendela Install Asli Android -->
+    <div id="pwaInstallContainer">
+        <div class="pwa-text-box">
+            <h4>Install MF GP</h4>
+            <p>Pasang di desktop layar utama HP Anda.</p>
+        </div>
+        <button id="btnPwaAction">Install</button>
+    </div>
+
     <iframe src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbw5bf1vU6KR_nKxXD9V0gGgfdWCoqbzRtE-zezwR0fHMqhWvBFw6_0zS8KTqKIOrnHqzQ/exec"></iframe>
 
     <script>
-        // 1. Mendaftarkan Service Worker wajib PWA
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
 
-        // 2. Kode Otomatis Memicu Pop-Up Install Resmi Android/Chrome
+        let deferredPrompt;
+        const installContainer = document.getElementById('pwaInstallContainer');
+        const installBtn = document.getElementById('btnPwaAction');
+
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Mencegah Chrome menunda banner
             e.preventDefault();
+            deferredPrompt = e;
             
-            // Langsung eksekusi memunculkan pop-up install bawaan saat itu juga
-            e.prompt(); 
+            // Tampilkan pop-up buatan kita di layar bawah
+            installContainer.style.display = 'flex';
             
-            e.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User menginstall MF GP');
-                }
-            });
+            // Tetap mencoba memicu jendela install bawaan Android secara otomatis
+            e.prompt();
+        });
+
+        // Jika otomatis gagal, saat user klik tombol "Install" buatan kita ini, 
+        // Jendela install asli Android DIJAMIN akan langsung keluar tanpa tertahan lagi.
+        installBtn.addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User sukses menginstall aplikasi');
+                    }
+                    deferredPrompt = null;
+                    installContainer.style.display = 'none';
+                });
+            }
         });
     </script>
 </body>
