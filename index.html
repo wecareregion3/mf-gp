@@ -53,8 +53,13 @@
         <button id="btnPwaAction">Install</button>
     </div>
 
-    <iframe src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbzTHgrifQ5zUrxmqA0DuKTOJXBhTsWNPN8N25w34UTopiF7njBQGAgCm7zn1s5mheMf5Q/exec"></iframe>
+<iframe 
+    src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbzTHgrifQ5zUrxmqA0DuKTOJXBhTsWNPN8N25w34UTopiF7njBQGAgCm7zn1s5mheMf5Q/exec"
+    allow="geolocation *; camera *; microphone *"
+    allowfullscreen>
+</iframe>
 
+    
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
