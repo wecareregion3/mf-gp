@@ -85,6 +85,7 @@
         allowfullscreen>
     </iframe>
 
+    <!-- PWA Service Worker & Installation Prompt Script -->
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
@@ -115,6 +116,34 @@
                 });
             }
         });
+    </script>
+
+    <!-- SDK Firebase & Realtime Database Listener -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <script>
+      const firebaseConfig = {
+        databaseURL: "https://eform-care-app-default-rtdb.asia-southeast1.firebasedatabase.app/"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const database = firebase.database();
+
+      // Mendengarkan perubahan data secara real-time
+      database.ref('eform_data/dashboard_summary').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          // Lakukan update UI/DOM sesuai elemen ID di HTML Anda
+          console.log("Data Firebase diterima:", data);
+
+          if (document.getElementById('totalMF')) {
+            document.getElementById('totalMF').innerText = data.total_mf || 0;
+          }
+          if (document.getElementById('waktuUpdate')) {
+            document.getElementById('waktuUpdate').innerText = "Update: " + (data.last_update || '-');
+          }
+        }
+      });
     </script>
 </body>
 </html>
