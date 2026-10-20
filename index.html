@@ -118,7 +118,7 @@
         });
     </script>
 
-  <!-- Firebase SDK & Listener Real-Time -->
+<!-- SDK Firebase Realtime Database -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -134,25 +134,44 @@
     
     const database = firebase.database();
 
-    // Mendengarkan perubahan data secara langsung (Kilat)
-    database.ref('eform_data/dashboard_summary').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        console.log("⚡ Realtime Update dari Firebase:", data);
+    // Mendengarkan seluruh perubahan node eform_data secara real-time
+    database.ref('eform_data').on('value', (snapshot) => {
+      const allData = snapshot.val();
+      if (!allData) return;
 
-        // Update Kartu Total MF (Mission Completed) jika elemen tersedia
-        const elTotalMF = document.getElementById('totalMF') || document.querySelector('.card-total-mf');
-        if (elTotalMF) elTotalMF.innerText = data.total_mf;
+      console.log("⚡ Realtime Update Diterima dari Firebase:", allData);
 
-        // Update Kartu Pendingan jika elemen tersedia
-        const elPending = document.getElementById('totalPending') || document.querySelector('.card-pending');
-        if (elPending) elPending.innerText = data.total_pending;
+      const summary = allData.dashboard_summary || {};
+      const pendingList = allData.visit_pending || {};
+      const doneList = allData.visit_done || {};
 
-        // Jika fungsi render dashboard/grafik lokal ada, panggil ulang tanpa reload
-        if (typeof renderDashboard === 'function') {
-          renderDashboard();
-        }
+      // 1. Update Angka Ringkasan Kartu Dashboard
+      if (document.getElementById('totalMF')) {
+        document.getElementById('totalMF').innerText = summary.total_mf || 0;
       }
+      if (document.getElementById('totalPending')) {
+        document.getElementById('totalPending').innerText = summary.total_pending || 0;
+      }
+      if (document.getElementById('waktuUpdate')) {
+        document.getElementById('waktuUpdate').innerText = "Update: " + (summary.last_update || '-');
+      }
+
+      // 2. Render Ulang Tabel/List Pending & Done secara Otomatis
+      // (Sesuaikan dengan nama fungsi render tabel yang ada di skrip JS Anda)
+      if (typeof renderPendingTable === 'function') {
+        renderPendingTable(pendingList);
+      }
+      if (typeof renderDoneTable === 'function') {
+        renderDoneTable(doneList);
+      }
+
+      // 3. Panggil fungsi refresh UI global jika ada
+      if (typeof loadDashboardData === 'function') {
+        loadDashboardData();
+      }
+    });
+  })();
+</script>
     });
   })();
 </script>
