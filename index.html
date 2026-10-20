@@ -79,7 +79,9 @@
         <button id="btnPwaAction">Install</button>
     </div>
 
+    <!-- IFRAME DENGAN ID DAN PERMISSION LENGKAP -->
     <iframe 
+        id="appIframe"
         src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbylzEA7N-kaEeBdTwVCyJUvHv_wY-e2NCkebZwu86tS2BlzvIMlVMBOE99w8f1p0nZd2g/exec"
         allow="geolocation *; camera *; microphone *"
         allowfullscreen>
@@ -98,12 +100,9 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            
-            // Tampilkan pop-up buatan di layar bawah
             installContainer.style.display = 'flex';
         });
 
-        // Picu prompt saat tombol install buatan kita diklik
         installBtn.addEventListener('click', () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
@@ -133,27 +132,54 @@
         }
         
         const database = firebase.database();
+        const iframeEl = document.getElementById('appIframe');
 
-        // Mendengarkan node eform_data secara real-time
-        database.ref('eform_data').on('value', (snapshot) => {
-          const allData = snapshot.val();
-          if (!allData) return;
+        // 1. DENGARKAN DASHBOARD SUMMARY & TERUSKAN KE IFRAME
+        database.ref('eform_data/dashboard_summary').on('value', (snapshot) => {
+          const summaryData = snapshot.val();
+          if (!summaryData) return;
 
-          console.log("⚡ Realtime Update Diterima dari Firebase:", allData);
+          console.log("⚡ Realtime Summary Diterima di Parent PWA:", summaryData);
 
-          const summary = allData.dashboard_summary || {};
-
-          // Update elemen statistik jika ditemukan
-          if (document.getElementById('totalMF')) {
-            document.getElementById('totalMF').innerText = summary.total_mf || 0;
-          }
-          if (document.getElementById('totalPending')) {
-            document.getElementById('totalPending').innerText = summary.total_pending || 0;
-          }
-          if (document.getElementById('waktuUpdate')) {
-            document.getElementById('waktuUpdate').innerText = "Update: " + (summary.last_update || '-');
+          // Kirim data summary ke dalam iframe Google Apps Script
+          if (iframeEl && iframeEl.contentWindow) {
+            iframeEl.contentWindow.postMessage({
+              type: 'FIREBASE_SUMMARY_UPDATE',
+              data: summaryData
+            }, '*');
           }
         });
+
+        // 2. DENGARKAN REALTIME VISITS & TERUSKAN KE IFRAME
+        database.ref('realtime_visits').on('value', (snapshot) => {
+          const visitsData = snapshot.val();
+          if (!visitsData) return;
+
+          console.log("⚡ Realtime Visits Diterima di Parent PWA:", visitsData);
+
+          if (iframeEl && iframeEl.contentWindow) {
+            iframeEl.contentWindow.postMessage({
+              type: 'FIREBASE_VISITS_UPDATE',
+              data: visitsData
+            }, '*');
+          }
+        });
+
+        // 3. DENGARKAN REALTIME REPORTS & TERUSKAN KE IFRAME
+        database.ref('realtime_reports').on('value', (snapshot) => {
+          const reportsData = snapshot.val();
+          if (!reportsData) return;
+
+          console.log("⚡ Realtime Reports Diterima di Parent PWA:", reportsData);
+
+          if (iframeEl && iframeEl.contentWindow) {
+            iframeEl.contentWindow.postMessage({
+              type: 'FIREBASE_REPORTS_UPDATE',
+              data: reportsData
+            }, '*');
+          }
+        });
+
       })();
     </script>
 </body>
