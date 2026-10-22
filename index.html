@@ -42,11 +42,11 @@
             left: 50%;
             transform: translateX(-50%);
             background: #ffffff;
-            border: 2px solid #4A90E2;
+            border: 2px solid #3867f5;
             padding: 10px 20px;
             border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: none; /* Sembunyikan secara bawaan */
+            display: none;
             z-index: 99999;
             align-items: center;
             gap: 15px;
@@ -58,7 +58,7 @@
         .pwa-text-box h4 { margin: 0; font-size: 14px; color: #333; }
         .pwa-text-box p { margin: 2px 0 0 0; font-size: 11px; color: #666; }
         #btnPwaAction {
-            background: #4A90E2;
+            background: #3867f5;
             color: white;
             border: none;
             padding: 8px 16px;
@@ -70,7 +70,7 @@
 </head>
 <body>
 
-    <!-- Pop-up Tombol Buatan Sendiri untuk Memicu Jendela Install Asli Android -->
+    <!-- Pop-up Tombol Install PWA Android -->
     <div id="pwaInstallContainer">
         <div class="pwa-text-box">
             <h4>Install E-From Care</h4>
@@ -79,11 +79,12 @@
         <button id="btnPwaAction">Install</button>
     </div>
 
-    <!-- IFRAME DENGAN ID DAN PERMISSION LENGKAP -->
+    <!-- IFRAME DENGAN LINK DEPLOYMENT GAS LATEST & PERMISSION LENGKAP -->
     <iframe 
         id="appIframe"
-        src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbylzEA7N-kaEeBdTwVCyJUvHv_wY-e2NCkebZwu86tS2BlzvIMlVMBOE99w8f1p0nZd2g/exec"
-        allow="geolocation *; camera *; microphone *"
+        src="https://script.google.com/a/macros/rabdurand.co.id/s/AKfycbyNAQLDChu5ZRikU3DU9pq3asoAyeHiL4Pveb_vMzIHFhYbOY2kflD1Ky09uxDESO8Afw/exec"
+        allow="geolocation *; camera *; microphone *; autoplay *"
+        sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-downloads allow-storage-access-by-user-activation"
         allowfullscreen>
     </iframe>
 
@@ -141,7 +142,6 @@
 
           console.log("⚡ Realtime Summary Diterima di Parent PWA:", summaryData);
 
-          // Kirim data summary ke dalam iframe Google Apps Script
           if (iframeEl && iframeEl.contentWindow) {
             iframeEl.contentWindow.postMessage({
               type: 'FIREBASE_SUMMARY_UPDATE',
@@ -150,12 +150,12 @@
           }
         });
 
-        // 2. DENGARKAN REALTIME VISITS & TERUSKAN KE IFRAME
-        database.ref('realtime_visits').on('value', (snapshot) => {
+        // 2. DENGARKAN REALTIME PENDING VISITS & TERUSKAN KE IFRAME (DISESUAIKAN NODE 'pending_visits')
+        database.ref('pending_visits').on('value', (snapshot) => {
           const visitsData = snapshot.val();
           if (!visitsData) return;
 
-          console.log("⚡ Realtime Visits Diterima di Parent PWA:", visitsData);
+          console.log("⚡ Realtime Pending Visits Diterima di Parent PWA:", visitsData);
 
           if (iframeEl && iframeEl.contentWindow) {
             iframeEl.contentWindow.postMessage({
@@ -165,8 +165,8 @@
           }
         });
 
-        // 3. DENGARKAN REALTIME REPORTS & TERUSKAN KE IFRAME
-        database.ref('realtime_reports').on('value', (snapshot) => {
+        // 3. DENGARKAN REALTIME REPORTS & TERUSKAN KE IFRAME (DISESUAIKAN NODE 'report_teknisi')
+        database.ref('report_teknisi').on('value', (snapshot) => {
           const reportsData = snapshot.val();
           if (!reportsData) return;
 
