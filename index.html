@@ -136,49 +136,27 @@
         const database = firebase.database();
         const iframeEl = document.getElementById('appIframe');
 
-        // 1. DENGARKAN DASHBOARD SUMMARY & TERUSKAN KE IFRAME
-        database.ref('eform_data/dashboard_summary').on('value', (snapshot) => {
+  
+        // HANYA MENDENGARKAN SUMMARY DASHBOARD
+        // Tidak mengambil seluruh pending_visits dan report_teknisi
+        const summaryRef = database.ref('eform_data/dashboard_summary');
+
+        summaryRef.on('value', (snapshot) => {
           const summaryData = snapshot.val();
-          if (!summaryData) return;
 
-          console.log("⚡ Realtime Summary Diterima di Parent PWA:", summaryData);
-
-          if (iframeEl && iframeEl.contentWindow) {
-            iframeEl.contentWindow.postMessage({
-              type: 'FIREBASE_SUMMARY_UPDATE',
-              data: summaryData
-            }, '*');
+          if (!summaryData || !iframeEl || !iframeEl.contentWindow) {
+            return;
           }
-        });
 
-        // 2. DENGARKAN REALTIME PENDING VISITS & TERUSKAN KE IFRAME (DISESUAIKAN NODE 'pending_visits')
-        database.ref('pending_visits').on('value', (snapshot) => {
-          const visitsData = snapshot.val();
-          if (!visitsData) return;
+          console.log('Realtime Dashboard Summary diterima');
 
-          console.log("⚡ Realtime Pending Visits Diterima di Parent PWA:", visitsData);
+          iframeEl.contentWindow.postMessage({
+            type: 'FIREBASE_SUMMARY_UPDATE',
+            data: summaryData
+          }, '*');
 
-          if (iframeEl && iframeEl.contentWindow) {
-            iframeEl.contentWindow.postMessage({
-              type: 'FIREBASE_VISITS_UPDATE',
-              data: visitsData
-            }, '*');
-          }
-        });
-
-        // 3. DENGARKAN REALTIME REPORTS & TERUSKAN KE IFRAME (DISESUAIKAN NODE 'report_teknisi')
-        database.ref('report_teknisi').on('value', (snapshot) => {
-          const reportsData = snapshot.val();
-          if (!reportsData) return;
-
-          console.log("⚡ Realtime Reports Diterima di Parent PWA:", reportsData);
-
-          if (iframeEl && iframeEl.contentWindow) {
-            iframeEl.contentWindow.postMessage({
-              type: 'FIREBASE_REPORTS_UPDATE',
-              data: reportsData
-            }, '*');
-          }
+        }, (error) => {
+          console.error('Gagal membaca Dashboard Summary:', error);
         });
 
       })();
